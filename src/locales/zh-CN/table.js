@@ -1,0 +1,17 @@
+export default {
+  "table.videoName": "视频名称",
+  'table.videoPath': "视频地址",
+  'table.createTime': "创建时间",
+  'table.watchNum': "观看人数",
+  'table.replyList': "留言列表",
+  'table.action': "操作",
+  'table.userName': "用户名称",
+  'table.nickname': "昵称",
+  'table.avatar': "头像",
+  'table.courseType': "分类名称",
+  'table.courseTypeIndex': "教程分类排序",
+  'table.course': "课程名字",
+  'table.courseCover': "分类id",
+  'table.courseDescribe': "教程描述",
+  'table.courseVideos': "教程视频",
+}
