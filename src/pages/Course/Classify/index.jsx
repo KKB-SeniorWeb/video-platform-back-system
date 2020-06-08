@@ -1,51 +1,22 @@
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import ProTable from "@ant-design/pro-table";
-import {Card, Button} from "antd";
-import {useColumns} from "@/utils/utils";
+import {Card, Button, Input} from "antd";
+import {useColumns, useDraggable} from "@/utils/utils";
 import {HTML5Backend} from "react-dnd-html5-backend";
 import {DndProvider, useDrag, useDrop} from "react-dnd";
 import update from 'immutability-helper';
 import './index.less';
 import {PageHeaderWrapper} from "@ant-design/pro-layout";
 import {PlusOutlined} from "@ant-design/icons";
-import ClassifyModal from "@/components/Modal/ClassifyModal";
+import FormModal from "@/components/FormModal";
 
 const type = 'DraggableBodyRow';
 
 const DraggableBodyRow = ({index, moveRow, className, style, data, setData, ...restProps}) => {
-  const ref = React.useRef();
-  const [{isOver, dropClassName}, drop] = useDrop({
-    accept: type,
-    collect: monitor => {
-      const {index: dragIndex} = monitor.getItem() || {};
-      if (dragIndex === index) {
-        return {};
-      }
-      return {
-        isOver: monitor.isOver(),
-        dropClassName: dragIndex < index ? ' drop-over-downward' : ' drop-over-upward',
-      };
-    },
-    drop: item => {
-      moveRow(item.index, index, data, setData);
-    },
-  });
-  const [, drag] = useDrag({
-    item: {type, index},
-    collect: monitor => ({
-      isDragging: monitor.isDragging(),
-    }),
-  });
-  drop(drag(ref));
+  const dragConfig = useDraggable({index, moveRow, className, style, data, setData, type, ...restProps});
   return (
     <tr
-      ref={ref}
-      className={`${className}${isOver ? dropClassName : ''}`}
-      style={{
-        cursor: 'move',
-        ...style
-      }}
-      {...restProps}
+      {...dragConfig}
     />
   );
 };
@@ -134,7 +105,18 @@ export default props => {
           />
         </DndProvider>
       </Card>
-      <ClassifyModal
+      <FormModal
+        formItems={[{
+          name: 'courseType',
+          component: <Input />,
+          rules: [
+            {
+              required: true,
+              message: '请输入教程分类名称！',
+              whitespace: true
+            }
+          ]
+        }]}
         title={`${edit ? '编辑' : '新建'}教程分类`}
         visible={visible}
         onCancel={() => {

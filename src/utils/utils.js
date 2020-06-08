@@ -1,6 +1,8 @@
 import {parse} from 'querystring';
 import pathRegexp from 'path-to-regexp';
 import {useIntl} from "umi";
+import React, {useRef} from "react";
+import {useDrag, useDrop} from "react-dnd";
 
 /* eslint no-useless-escape:0 import/prefer-default-export:0 */
 const reg = /(((^https?:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+(?::\d+)?|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)$/;
@@ -57,6 +59,42 @@ export const getRouteAuthority = (path, routeData) => {
     }
   });
   return authorities;
+};
+
+export const useDraggable = ({index, moveRow, className, style, data, setData, type, ...restProps}) => {
+  const ref = useRef();
+  const [{isOver, dropClassName}, drop] = useDrop({
+    accept: type,
+    collect: monitor => {
+      const {index: dragIndex} = monitor.getItem() || {};
+      if (dragIndex === index) {
+        return {};
+      }
+      return {
+        isOver: monitor.isOver(),
+        dropClassName: dragIndex < index ? ' drop-over-downward' : ' drop-over-upward',
+      };
+    },
+    drop: item => {
+      moveRow(item.index, index, data, setData);
+    },
+  });
+  const [, drag] = useDrag({
+    item: {type, index},
+    collect: monitor => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+  drop(drag(ref));
+  return {
+    ref,
+    className: `${className}${isOver ? dropClassName : ''}`,
+    style: {
+      cursor: 'move',
+      ...style
+    },
+    ...restProps
+  };
 };
 
 export const useColumns = (column, actions, options = {}) => {
